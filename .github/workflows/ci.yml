@@ -55,13 +55,13 @@ jobs:
 
       - name: Create Sample 1 output
         run: |
-          echo "This is the first line  of the sample summary" >> $GITHUB_STEP_SUMMARY
-          echo "Next will come after this:" >> $GITHUB_STEP_SUMMARY
+          echo "This is the first line of the first step of the sample summary" >> $GITHUB_STEP_SUMMARY
+          echo "This is the second line of the first step of the sample summary" >> $GITHUB_STEP_SUMMARY
 
       - name: Create Sample 2 output
         run: |
-          echo "This is the first line  of the sample summary" >> $GITHUB_STEP_SUMMARY
-          echo "END" >> $GITHUB_STEP_SUMMARY
+          echo "This is the first line of the second step of the sample summary" >> $GITHUB_STEP_SUMMARY
+          echo "This is the second line of the second step of the sample summary" >> $GITHUB_STEP_SUMMARY
 
       - name: Test Local Action
         id: test-action
