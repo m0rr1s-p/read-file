@@ -10,6 +10,11 @@ branding:
 # Define your inputs here.
 
 # Define your outputs here.
+outputs:
+  md-file:
+    description: Path to md file
+  job-summary:
+    description: job summary
 
 runs:
   using: node20
