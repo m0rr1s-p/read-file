@@ -62,3 +62,4 @@ jobs:
         run: |
           echo "Summary: ${{ steps.test-action.outputs.job-summary }}"
           echo "Path: ${{ steps.test-action.outputs.md-file }}"
+          echo "Content: ${{ steps.test-action.outputs.md-file }}"
