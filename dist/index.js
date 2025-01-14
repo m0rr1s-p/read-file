@@ -1,7 +1,7 @@
 import require$$0 from 'os';
 import require$$0$1 from 'crypto';
-import require$$1 from 'fs';
-import require$$1$5 from 'path';
+import require$$1, { readdirSync, readFileSync, writeFileSync } from 'fs';
+import path from 'path';
 import require$$2 from 'http';
 import require$$3 from 'https';
 import require$$0$5 from 'net';
@@ -20,13 +20,14 @@ import require$$0$8 from 'worker_threads';
 import require$$2$1 from 'perf_hooks';
 import require$$5 from 'util/types';
 import require$$4$1 from 'async_hooks';
-import require$$1$3 from 'console';
+import require$$1$3, { debug } from 'console';
 import require$$1$4 from 'url';
 import require$$3$1 from 'zlib';
 import require$$6 from 'string_decoder';
 import require$$0$9 from 'diagnostics_channel';
 import require$$2$2 from 'child_process';
 import require$$6$1 from 'timers';
+import { access, constants as constants$5 } from 'fs/promises';
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -25498,7 +25499,7 @@ function requirePathUtils () {
 	};
 	Object.defineProperty(pathUtils, "__esModule", { value: true });
 	pathUtils.toPlatformPath = pathUtils.toWin32Path = pathUtils.toPosixPath = undefined;
-	const path = __importStar(require$$1$5);
+	const path$1 = __importStar(path);
 	/**
 	 * toPosixPath converts the given path to the posix form. On Windows, \\ will be
 	 * replaced with /.
@@ -25530,7 +25531,7 @@ function requirePathUtils () {
 	 * @return string The platform-specific path.
 	 */
 	function toPlatformPath(pth) {
-	    return pth.replace(/[/\\]/g, path.sep);
+	    return pth.replace(/[/\\]/g, path$1.sep);
 	}
 	pathUtils.toPlatformPath = toPlatformPath;
 	
@@ -25585,7 +25586,7 @@ function requireIoUtil () {
 		Object.defineProperty(exports, "__esModule", { value: true });
 		exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = undefined;
 		const fs = __importStar(require$$1);
-		const path = __importStar(require$$1$5);
+		const path$1 = __importStar(path);
 		_a = fs.promises
 		// export const {open} = 'fs'
 		, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.open = _a.open, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rm = _a.rm, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
@@ -25654,7 +25655,7 @@ function requireIoUtil () {
 		        if (stats && stats.isFile()) {
 		            if (exports.IS_WINDOWS) {
 		                // on Windows, test for valid extension
-		                const upperExt = path.extname(filePath).toUpperCase();
+		                const upperExt = path$1.extname(filePath).toUpperCase();
 		                if (extensions.some(validExt => validExt.toUpperCase() === upperExt)) {
 		                    return filePath;
 		                }
@@ -25683,11 +25684,11 @@ function requireIoUtil () {
 		                if (exports.IS_WINDOWS) {
 		                    // preserve the case of the actual file (since an extension was appended)
 		                    try {
-		                        const directory = path.dirname(filePath);
-		                        const upperName = path.basename(filePath).toUpperCase();
+		                        const directory = path$1.dirname(filePath);
+		                        const upperName = path$1.basename(filePath).toUpperCase();
 		                        for (const actualName of yield exports.readdir(directory)) {
 		                            if (upperName === actualName.toUpperCase()) {
-		                                filePath = path.join(directory, actualName);
+		                                filePath = path$1.join(directory, actualName);
 		                                break;
 		                            }
 		                        }
@@ -25775,7 +25776,7 @@ function requireIo () {
 	Object.defineProperty(io, "__esModule", { value: true });
 	io.findInPath = io.which = io.mkdirP = io.rmRF = io.mv = io.cp = undefined;
 	const assert_1 = require$$0$3;
-	const path = __importStar(require$$1$5);
+	const path$1 = __importStar(path);
 	const ioUtil = __importStar(requireIoUtil());
 	/**
 	 * Copies a file or folder.
@@ -25795,7 +25796,7 @@ function requireIo () {
 	        }
 	        // If dest is an existing directory, should copy inside.
 	        const newDest = destStat && destStat.isDirectory() && copySourceDirectory
-	            ? path.join(dest, path.basename(source))
+	            ? path$1.join(dest, path$1.basename(source))
 	            : dest;
 	        if (!(yield ioUtil.exists(source))) {
 	            throw new Error(`no such file or directory: ${source}`);
@@ -25810,7 +25811,7 @@ function requireIo () {
 	            }
 	        }
 	        else {
-	            if (path.relative(source, newDest) === '') {
+	            if (path$1.relative(source, newDest) === '') {
 	                // a file cannot be copied to itself
 	                throw new Error(`'${newDest}' and '${source}' are the same file`);
 	            }
@@ -25832,7 +25833,7 @@ function requireIo () {
 	            let destExists = true;
 	            if (yield ioUtil.isDirectory(dest)) {
 	                // If dest is directory copy src into dest
-	                dest = path.join(dest, path.basename(source));
+	                dest = path$1.join(dest, path$1.basename(source));
 	                destExists = yield ioUtil.exists(dest);
 	            }
 	            if (destExists) {
@@ -25844,7 +25845,7 @@ function requireIo () {
 	                }
 	            }
 	        }
-	        yield mkdirP(path.dirname(dest));
+	        yield mkdirP(path$1.dirname(dest));
 	        yield ioUtil.rename(source, dest);
 	    });
 	}
@@ -25939,7 +25940,7 @@ function requireIo () {
 	        // build the list of extensions to try
 	        const extensions = [];
 	        if (ioUtil.IS_WINDOWS && process.env['PATHEXT']) {
-	            for (const extension of process.env['PATHEXT'].split(path.delimiter)) {
+	            for (const extension of process.env['PATHEXT'].split(path$1.delimiter)) {
 	                if (extension) {
 	                    extensions.push(extension);
 	                }
@@ -25954,7 +25955,7 @@ function requireIo () {
 	            return [];
 	        }
 	        // if any path separators, return empty
-	        if (tool.includes(path.sep)) {
+	        if (tool.includes(path$1.sep)) {
 	            return [];
 	        }
 	        // build the list of directories
@@ -25965,7 +25966,7 @@ function requireIo () {
 	        // across platforms.
 	        const directories = [];
 	        if (process.env.PATH) {
-	            for (const p of process.env.PATH.split(path.delimiter)) {
+	            for (const p of process.env.PATH.split(path$1.delimiter)) {
 	                if (p) {
 	                    directories.push(p);
 	                }
@@ -25974,7 +25975,7 @@ function requireIo () {
 	        // find all matches
 	        const matches = [];
 	        for (const directory of directories) {
-	            const filePath = yield ioUtil.tryGetExecutablePath(path.join(directory, tool), extensions);
+	            const filePath = yield ioUtil.tryGetExecutablePath(path$1.join(directory, tool), extensions);
 	            if (filePath) {
 	                matches.push(filePath);
 	            }
@@ -26083,7 +26084,7 @@ function requireToolrunner () {
 	const os = __importStar(require$$0);
 	const events = __importStar(require$$4);
 	const child = __importStar(require$$2$2);
-	const path = __importStar(require$$1$5);
+	const path$1 = __importStar(path);
 	const io = __importStar(requireIo());
 	const ioUtil = __importStar(requireIoUtil());
 	const timers_1 = require$$6$1;
@@ -26438,7 +26439,7 @@ function requireToolrunner () {
 	                (this.toolPath.includes('/') ||
 	                    (IS_WINDOWS && this.toolPath.includes('\\')))) {
 	                // prefer options.cwd if it is specified, however options.cwd may also need to be rooted
-	                this.toolPath = path.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
+	                this.toolPath = path$1.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
 	            }
 	            // if the tool is only a file name, then resolve it from the PATH
 	            // otherwise verify it exists (add extension on Windows if necessary)
@@ -26927,7 +26928,7 @@ function requireCore () {
 		const file_command_1 = requireFileCommand();
 		const utils_1 = requireUtils$1();
 		const os = __importStar(require$$0);
-		const path = __importStar(require$$1$5);
+		const path$1 = __importStar(path);
 		const oidc_utils_1 = requireOidcUtils();
 		/**
 		 * The code to exit an action
@@ -26982,7 +26983,7 @@ function requireCore () {
 		    else {
 		        (0, command_1.issueCommand)('add-path', {}, inputPath);
 		    }
-		    process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
+		    process.env['PATH'] = `${inputPath}${path$1.delimiter}${process.env['PATH']}`;
 		}
 		exports.addPath = addPath;
 		/**
@@ -27238,43 +27239,45 @@ function requireCore () {
 
 var coreExports = requireCore();
 
-/**
- * Waits for a number of milliseconds.
- *
- * @param milliseconds The number of milliseconds to wait.
- * @returns Resolves with 'done!' after the wait is over.
- */
-async function wait(milliseconds) {
-    return new Promise((resolve) => {
-        if (isNaN(milliseconds))
-            throw new Error('milliseconds is not a number');
-        setTimeout(() => resolve('done!'), milliseconds);
-    });
-}
-
-/**
- * The main function for the action.
- *
- * @returns Resolves when the action is complete.
- */
-async function run() {
+const mdFile = 'my-summary.md';
+const SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY';
+const jobSummaryFilePath = async () => {
+    const pathFromEnv = process.env[SUMMARY_ENV_VAR];
+    if (!pathFromEnv) {
+        throw new Error(`Unable to find environment variable for $${SUMMARY_ENV_VAR}. Check if your runtime environment supports job summaries.`);
+    }
     try {
-        const ms = coreExports.getInput('milliseconds');
-        // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-        coreExports.debug(`Waiting ${ms} milliseconds ...`);
-        // Log the current timestamp, wait, then log the new timestamp
-        coreExports.debug(new Date().toTimeString());
-        await wait(parseInt(ms, 10));
-        coreExports.debug(new Date().toTimeString());
-        // Set outputs for other workflow steps to use
-        coreExports.setOutput('time', new Date().toTimeString());
+        await access(pathFromEnv, constants$5.R_OK | constants$5.W_OK);
     }
-    catch (error) {
-        // Fail the workflow run if an error occurs
-        if (error instanceof Error)
-            coreExports.setFailed(error.message);
+    catch {
+        throw new Error(`Unable to access summary file: '${pathFromEnv}'. Check if the file has correct read/write permissions.`);
     }
-}
+    return pathFromEnv;
+};
+const run = async () => {
+    let jobSummary = '';
+    const filePath = await jobSummaryFilePath();
+    const filePathObj = path.parse(filePath);
+    const dir = filePathObj.dir;
+    debug(`Job summary file directory: ${dir}`);
+    const JobSummaryFiles = readdirSync(dir);
+    debug(`Job files: ${JobSummaryFiles}`);
+    for (const file of JobSummaryFiles) {
+        const fileObj = path.parse(file);
+        if (fileObj.base.startsWith('step_summary_') &&
+            fileObj.base.endsWith('-scrubbed')) {
+            debug(`Found step summary: ${file}`);
+            const stepSummary = readFileSync(`${dir}/${file}`, 'utf8');
+            jobSummary += stepSummary;
+        }
+    }
+    coreExports.startGroup('Job Summary');
+    coreExports.info(jobSummary);
+    coreExports.endGroup();
+    coreExports.setOutput('job-summary', jobSummary);
+    writeFileSync(`./${mdFile}`, jobSummary);
+    coreExports.setOutput('md-file', path.resolve(mdFile));
+};
 
 /**
  * The entrypoint for the action. This file simply imports and runs the action's

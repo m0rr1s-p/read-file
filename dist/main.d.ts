@@ -1,6 +1,2 @@
-/**
- * The main function for the action.
- *
- * @returns Resolves when the action is complete.
- */
-export declare function run(): Promise<void>;
+export declare const jobSummaryFilePath: () => Promise<string>;
+export declare const run: () => Promise<void>;

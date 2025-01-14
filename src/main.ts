@@ -1,27 +1,56 @@
-import * as core from '@actions/core'
-import { wait } from './wait.js'
+import { endGroup, info, setOutput, startGroup } from '@actions/core'
+import { readFileSync, readdirSync, writeFileSync } from 'fs'
+import { access, constants } from 'fs/promises'
+import path from 'path'
+import { debug } from 'console'
 
-/**
- * The main function for the action.
- *
- * @returns Resolves when the action is complete.
- */
-export async function run(): Promise<void> {
-  try {
-    const ms: string = core.getInput('milliseconds')
-
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
-
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
-  } catch (error) {
-    // Fail the workflow run if an error occurs
-    if (error instanceof Error) core.setFailed(error.message)
+const mdFile = 'my-summary.md'
+const SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY'
+export const jobSummaryFilePath = async (): Promise<string> => {
+  const pathFromEnv = process.env[SUMMARY_ENV_VAR]
+  if (!pathFromEnv) {
+    throw new Error(
+      `Unable to find environment variable for $${SUMMARY_ENV_VAR}. Check if your runtime environment supports job summaries.`
+    )
   }
+
+  try {
+    await access(pathFromEnv, constants.R_OK | constants.W_OK)
+  } catch {
+    throw new Error(
+      `Unable to access summary file: '${pathFromEnv}'. Check if the file has correct read/write permissions.`
+    )
+  }
+
+  return pathFromEnv
+}
+
+export const run = async (): Promise<void> => {
+  let jobSummary = ''
+
+  const filePath = await jobSummaryFilePath()
+  const filePathObj = path.parse(filePath)
+  const dir = filePathObj.dir
+
+  debug(`Job summary file directory: ${dir}`)
+  const JobSummaryFiles = readdirSync(dir)
+  debug(`Job files: ${JobSummaryFiles}`)
+  for (const file of JobSummaryFiles) {
+    const fileObj = path.parse(file)
+    if (
+      fileObj.base.startsWith('step_summary_') &&
+      fileObj.base.endsWith('-scrubbed')
+    ) {
+      debug(`Found step summary: ${file}`)
+      const stepSummary = readFileSync(`${dir}/${file}`, 'utf8')
+      jobSummary += stepSummary
+    }
+  }
+
+  startGroup('Job Summary')
+  info(jobSummary)
+  endGroup()
+  setOutput('job-summary', jobSummary)
+  writeFileSync(`./${mdFile}`, jobSummary)
+  setOutput('md-file', path.resolve(mdFile))
 }
